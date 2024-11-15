@@ -96,3 +96,38 @@ export const getUserInfo = async (req, res) => {
     return res.status(500).json({ msg: error.message });
   }
 };
+
+export const updateProfile = async (req, res) => {
+  try {
+    const { userId } = req;
+    const { firstName, lastName, profilePic } = req.body;
+
+    if (!firstName || !lastName || !profilePic) {
+      return res
+        .status(500)
+        .json({ msg: "First name last name and profile pic is required" });
+    }
+
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      {
+        firstName,
+        lastName,
+        profilePic,
+        profileSetup: true,
+      },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json({
+      id: userData.id,
+      email: userData.email,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      profilePic: userData.profilePic,
+      profileSetup: userData.profileSetup,
+    });
+  } catch (error) {
+    return res.status(500).json({ msg: error.message });
+  }
+};
