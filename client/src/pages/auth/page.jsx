@@ -23,8 +23,8 @@ export default function Auth() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate()
-  const {userInfo,setUserInfo} = useAppStore()
+  const navigate = useNavigate();
+  const { userInfo, setUserInfo } = useAppStore();
 
   const validateLogin = () => {
     const newErrors = {};
@@ -62,8 +62,9 @@ export default function Auth() {
           { email: loginData.email, password: loginData.password },
           { withCredentials: true }
         );
-        if(response.status === 200){
-          setUserInfo(response.data.user)
+        if (response.status === 200) {
+          setUserInfo(response.data.user);
+          console.log({ userInfo });
           navigate("/profile");
         }
       } catch (error) {
@@ -81,14 +82,14 @@ export default function Auth() {
           { email: registerData.email, password: registerData.password },
           { withCredentials: true }
         );
-        if(response.data.user.id){
-          setUserInfo(response.data.user)
-          if(response.data.user.profileSetup){
-            navigate("/chat")
-          }else{
-            navigate("/profile")
+        if (response.data.user.id) {
+          setUserInfo(response.data.user);
+          if (response.data.user.profileSetup) {
+            navigate("/chat");
+          } else {
+            navigate("/profile");
           }
-        };
+        }
       } catch (error) {
         console.log(error);
       }

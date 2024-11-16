@@ -9,6 +9,8 @@ const Chat = () => {
   const { userInfo, chatDetails } = useAppStore();
   const navigate = useNavigate();
 
+  console.log(chatDetails)
+
   useEffect(() => {
     console.log(userInfo);
     if (!userInfo.profileSetup) {

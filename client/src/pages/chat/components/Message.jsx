@@ -5,7 +5,7 @@ import { format } from "date-fns";
 
 const Message = ({ message }) => {
   const { userInfo } = useAppStore();
-  const isReceiver = userInfo.id === message.receiver;
+  const isFromMe = userInfo.id === message.sender._id;
 
   const formattedTime = format(new Date(message.timestamp), "h:mm aaa");
 
@@ -13,14 +13,14 @@ const Message = ({ message }) => {
     <div
       className={cn(
         "w-full flex",
-        isReceiver ? "justify-start" : "justify-end",
+        isFromMe ? "justify-end" : "justify-start",
         "px-4 py-1"
       )}
     >
       <div
         className={cn(
           "max-w-[65%] relative",
-          isReceiver ? "bg-[#202C33]" : "bg-[#005C4B]",
+          isFromMe ? "bg-[#353463]" : "bg-[#202C33]",
           "rounded-lg px-3 py-1.5 break-words"
         )}
       >

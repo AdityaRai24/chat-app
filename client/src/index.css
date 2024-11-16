@@ -69,3 +69,7 @@
 * {
   font-family: "Poppins", sans-serif;
 }
+
+.rcs-inner-handle {
+  background-color: #555e70!important;
+}

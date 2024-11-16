@@ -13,18 +13,21 @@ const ActiveChat = ({ chatDetails }) => {
   const [chatHistory, setChatHistory] = useState(chatDetails.messages);
   const socket = useSocket();
 
-  console.log(chatHistory, chatDetails);
+  useEffect(() => {
+    setChatHistory(chatDetails.messages);
+  }, [chatDetails]);
+
+  const handleReceiveMessage = (msg) => {
+    setChatHistory((prev) => {
+      if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
+        return prev;
+      }
+      return [...prev, msg];
+    });
+  };
 
   useEffect(() => {
-    socket.on("receive_message", (msg) => {
-      console.log(msg);
-      setChatHistory((prev) => {
-        if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
-          return prev;
-        }
-        return [...prev, msg];
-      });
-    });
+    socket.on("receive_message", handleReceiveMessage);
 
     return () => {
       socket.off("receive_message", handleReceiveMessage);
@@ -33,11 +36,10 @@ const ActiveChat = ({ chatDetails }) => {
 
   const handleSendMessage = async () => {
     if (!message.trim()) return;
-
     socket.emit("send_message", {
       sender: userInfo.id,
       receiver: chatDetails.receiver._id,
-      message: message,
+      message: message.trim(),
     });
     setMessage("");
   };

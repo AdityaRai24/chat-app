@@ -1,4 +1,4 @@
-export const createAuthSlice = (set)=>({
+export const createChatSlice = (set)=>({
     chatDetails : undefined,
-    setUserInfo : (chatDetails)=>set({chatDetails})
+    setChatDetails : (chatDetails)=>set({chatDetails})
 })

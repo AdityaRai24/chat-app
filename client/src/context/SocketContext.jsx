@@ -34,7 +34,7 @@ export const SocketProvider = ({ children }) => {
         socket.current.disconnect();
       }
     }
-  }, []);
+  }, [userInfo]);
 
 
   return(
