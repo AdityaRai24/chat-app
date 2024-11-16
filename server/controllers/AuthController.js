@@ -97,6 +97,16 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
+export const getAllUsers = async (req, res) => {
+  try {
+    const userData = await User.find({},'-password');
+    return res.status(200).json(userData);
+  } catch (error) {
+    return res.status(500).json({ msg: error.message });
+  }
+};
+
+
 export const updateProfile = async (req, res) => {
   try {
     const { userId } = req;
