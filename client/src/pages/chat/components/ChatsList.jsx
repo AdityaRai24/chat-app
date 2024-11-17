@@ -8,7 +8,8 @@ import React, { useEffect, useState } from "react";
 const ChatsList = () => {
   const { userInfo, chatDetails, setChatDetails } = useAppStore();
   const [allUsers, setAllUsers] = useState([]);
-  console.log(chatDetails);
+
+  console.log({ chatDetails });
 
   useEffect(() => {
     const getAllUsers = async () => {
@@ -34,11 +35,6 @@ const ChatsList = () => {
         { withCredentials: true }
       );
       setChatDetails({
-        sender: userInfo,
-        receiver: item,
-        messages: response.data.messages,
-      });
-      console.log({
         sender: userInfo,
         receiver: item,
         messages: response.data.messages,
