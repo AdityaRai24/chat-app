@@ -35,6 +35,7 @@ const ChatInput = ({ chatDetails }) => {
 
   const { userInfo } = useAppStore();
   const socket = useSocket();
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -151,8 +152,32 @@ const ChatInput = ({ chatDetails }) => {
     if (e.key === "Enter") {
       handleSendMessage();
     }
-    socket.emit("typing", userInfo.id);
+
+    // Clear any existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    socket.emit("typing_start", {
+      senderId: userInfo.id,
+      receiverId: chatDetails.receiver._id,
+    });
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit("typing_stop", {
+        senderId: userInfo.id,
+        receiverId: chatDetails.receiver._id,
+      });
+    }, 1000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <>

@@ -16,6 +16,8 @@ const setupSocket = (server) => {
     for (const [userId, socketId] of userSocketMap.entries()) {
       if (socketId === socket.id) {
         userSocketMap.delete(userId);
+        socket.emit("user_current_status", "Offline");
+
         break;
       }
     }
@@ -31,15 +33,31 @@ const setupSocket = (server) => {
       console.log("user id not provided during connection.");
     }
 
-    socket.on("typing",(userId)=>{
-      socket.emit("user_current_status", "Typing");
-    })
+    socket.on("typing_start", ({ senderId, receiverId }) => {
+      const receiverSocketId = userSocketMap.get(receiverId);
+      if (receiverSocketId) {
+        socket.to(receiverSocketId).emit("typing_status", {
+          userId: senderId,
+          isTyping: true,
+        });
+      }
+    });
+
+    socket.on("typing_stop", ({ senderId, receiverId }) => {
+      const receiverSocketId = userSocketMap.get(receiverId);
+      if (receiverSocketId) {
+        socket.to(receiverSocketId).emit("typing_status", {
+          userId: senderId,
+          isTyping: false,
+        });
+      }
+    });
 
     socket.on("getUserStatus", ({ userId }) => {
       const userSocketId = userSocketMap.get(userId);
       if (userSocketId) {
         socket.emit("user_current_status", "Online");
-      }else{
+      } else {
         socket.emit("user_current_status", "Offline");
       }
     });
@@ -66,6 +84,7 @@ const setupSocket = (server) => {
           if (senderSocketId && senderSocketId !== socket.id) {
             socket.to(senderSocketId).emit("receive_message", messageData);
           }
+          
           socket.emit("receive_message", messageData);
         } catch (error) {
           console.log({ error });

@@ -10,6 +10,8 @@ const ActiveChat = ({ chatDetails }) => {
   const [chatHistory, setChatHistory] = useState(chatDetails.messages);
   const [userCurrentStatus, setUserCurrentStatus] = useState("Offline");
   const socket = useSocket();
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
 
   useEffect(() => {
     setChatHistory(chatDetails.messages);
@@ -33,18 +35,24 @@ const ActiveChat = ({ chatDetails }) => {
     socket.on("user_current_status", handleUsercurrentStatus);
 
     return () => {
-      socket.off("getUserStatus", { userId: chatDetails.receiver._id });
+      socket.off("getUserStatus");
       socket.off("user_current_status", handleUsercurrentStatus);
     };
   }, [userCurrentStatus, socket, chatDetails.receiver._id]);
 
   useEffect(() => {
     socket.on("receive_message", handleReceiveMessage);
+    socket.on("typing_status", ({ userId, isTyping: typing }) => {
+      if (userId === chatDetails.receiver._id) {
+        setIsTyping(typing);
+      }
+    });
 
     return () => {
       socket.off("receive_message", handleReceiveMessage);
+      socket.off("typing_status");
     };
-  }, [socket]);
+  }, [socket, chatDetails.receiver._id]);
 
   return (
     <div className="w-[70vw] flex flex-col items-start justify-between h-screen">
@@ -60,7 +68,9 @@ const ActiveChat = ({ chatDetails }) => {
           <h1 className="text-xl font-semibold text-white">
             {chatDetails.receiver.firstName} {chatDetails.receiver.lastName}
           </h1>
-          <span className="text-sm text-gray-400">{userCurrentStatus}</span>
+          <span className="text-sm text-gray-400">
+            {isTyping ? "Typing..." : userCurrentStatus}
+          </span>
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import ChatsList from "./components/ChatsList";
 import ActiveChat from "./components/ActiveChat";
+import EmptyChat from "./components/EmptyChat";
 
 const Chat = () => {
   const { userInfo, chatDetails } = useAppStore();
@@ -19,7 +20,7 @@ const Chat = () => {
   return (
     <div className="flex items-center justify-between w-full h-screen bg-[#1f2229]">
       <ChatsList />
-      {chatDetails ? <ActiveChat chatDetails={chatDetails} /> : <div className="text-white">No chat</div>}
+      {chatDetails ? <ActiveChat chatDetails={chatDetails} /> : <EmptyChat />}
     </div>
   );
 };

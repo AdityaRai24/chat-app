@@ -6,6 +6,7 @@ import authRoutes from "./routes/AuthRoutes.js";
 import ConnectToDb from "./connection/connection.js";
 import setupSocket from "./socket.js";
 import messageRoutes from "./routes/MessageRoute.js";
+import contactRoutes from "./routes/ContactRoutes.js";
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ app.use(
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
-
+app.use("/api/contacts", contactRoutes);
 
 ConnectToDb();
 
@@ -30,4 +31,4 @@ const server = app.listen(PORT, () => {
   console.log("listening on port ", PORT);
 });
 
-setupSocket(server)
+setupSocket(server);
