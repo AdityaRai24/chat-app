@@ -22,6 +22,7 @@ const ActiveChat = ({ chatDetails }) => {
   };
 
   const handleReceiveMessage = (msg) => {
+    console.log(msg)
     setChatHistory((prev) => {
       if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
         return prev;

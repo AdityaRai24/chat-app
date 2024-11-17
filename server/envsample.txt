@@ -1,0 +1,4 @@
+PORT=yourbackendport
+JWT_KEY=yourjwtsecretkey
+ORIGIN=yourfrontendurl (eg : http://localhost:5173)
+DATABASE_URL=yourmongodburl

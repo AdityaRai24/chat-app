@@ -127,10 +127,6 @@ const ChatInput = ({ chatDetails }) => {
     mediaInputRef.current?.click();
   };
 
-  const handleFileClick = () => {
-    console.log("File button clicked");
-    fileInputRef.current?.click();
-  };
 
   const handleImageUploadCancel = () => {
     setIsActiveUploadedImages(false);
@@ -153,7 +149,6 @@ const ChatInput = ({ chatDetails }) => {
       handleSendMessage();
     }
 
-    // Clear any existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
@@ -230,18 +225,12 @@ const ChatInput = ({ chatDetails }) => {
           <DropdownMenuContent>
             <DropdownMenuItem onClick={handleMediaClick}>
               <div className="flex items-center gap-2 cursor-pointer">
-                Images / Videos <ImagesIcon className="size-5" />
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleFileClick}>
-              <div className="flex items-center gap-2 cursor-pointer">
-                Files <FilesIcon className="size-5" />
+                Images <ImagesIcon className="size-5" />
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* File inputs moved outside of DropdownMenuItem */}
         <input
           type="file"
           ref={mediaInputRef}

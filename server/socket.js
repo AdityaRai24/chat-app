@@ -78,20 +78,25 @@ const setupSocket = (server) => {
 
     socket.on("send_message", async ({ sender, receiver, message, type }) => {
       try {
-        let messageData;
+        let messageDataArray = [];
         const messageContent = type === "text" ? message : "Sent a file";
 
         if (type === "text") {
+          // Handle text messages
           const createdMessage = await Message.create({
             sender,
             receiver,
             content: message,
             messageType: "text",
           });
-          messageData = await Message.findById(createdMessage._id)
+
+          const messageData = await Message.findById(createdMessage._id)
             .populate("sender", "id email firstName lastName profilePic")
             .populate("receiver", "id email firstName lastName profilePic");
+
+          messageDataArray.push(messageData);
         } else {
+          // Handle multiple file messages
           const createdMessages = await Promise.all(
             message.map((file) =>
               Message.create({
@@ -102,29 +107,33 @@ const setupSocket = (server) => {
               })
             )
           );
-          messageData = await Message.findById(createdMessages[0]._id)
-            .populate("sender", "id email firstName lastName profilePic")
-            .populate("receiver", "id email firstName lastName profilePic");
+
+          for (const createdMessage of createdMessages) {
+            const messageData = await Message.findById(createdMessage._id)
+              .populate("sender", "id email firstName lastName profilePic")
+              .populate("receiver", "id email firstName lastName profilePic");
+
+            messageDataArray.push(messageData);
+          }
         }
 
-        // Create chat list update for sender (showing receiver's info)
+        // Chat list updates
         const senderChatUpdate = {
-          _id: messageData.receiver._id,
-          firstName: messageData.receiver.firstName,
-          lastName: messageData.receiver.lastName,
-          profilePic: messageData.receiver.profilePic,
-          email: messageData.receiver.email,
+          _id: messageDataArray[0].receiver._id,
+          firstName: messageDataArray[0].receiver.firstName,
+          lastName: messageDataArray[0].receiver.lastName,
+          profilePic: messageDataArray[0].receiver.profilePic,
+          email: messageDataArray[0].receiver.email,
           lastMessage: messageContent,
           timestamp: new Date(),
         };
 
-        // Create chat list update for receiver (showing sender's info)
         const receiverChatUpdate = {
-          _id: messageData.sender._id,
-          firstName: messageData.sender.firstName,
-          lastName: messageData.sender.lastName,
-          profilePic: messageData.sender.profilePic,
-          email: messageData.sender.email,
+          _id: messageDataArray[0].sender._id,
+          firstName: messageDataArray[0].sender.firstName,
+          lastName: messageDataArray[0].sender.lastName,
+          profilePic: messageDataArray[0].sender.profilePic,
+          email: messageDataArray[0].sender.email,
           lastMessage: messageContent,
           timestamp: new Date(),
         };
@@ -132,22 +141,28 @@ const setupSocket = (server) => {
         const receiverSocketId = userSocketMap.get(receiver);
         const senderSocketId = userSocketMap.get(sender);
 
-        // Send message and chat list update to receiver
+        // Send all messages to the receiver
         if (receiverSocketId) {
-          socket.to(receiverSocketId).emit("receive_message", messageData);
+          for (const messageData of messageDataArray) {
+            socket.to(receiverSocketId).emit("receive_message", messageData);
+          }
           socket
             .to(receiverSocketId)
             .emit("chat_list_update", receiverChatUpdate);
         }
 
-        // Send message and chat list update to sender's other tabs/windows
+        // Send all messages to the sender's other tabs/windows
         if (senderSocketId && senderSocketId !== socket.id) {
-          socket.to(senderSocketId).emit("receive_message", messageData);
+          for (const messageData of messageDataArray) {
+            socket.to(senderSocketId).emit("receive_message", messageData);
+          }
           socket.to(senderSocketId).emit("chat_list_update", senderChatUpdate);
         }
 
-        // Send message and chat list update to current sender socket
-        socket.emit("receive_message", messageData);
+        // Send all messages to the current sender socket
+        for (const messageData of messageDataArray) {
+          socket.emit("receive_message", messageData);
+        }
         socket.emit("chat_list_update", senderChatUpdate);
       } catch (error) {
         console.log({ error });

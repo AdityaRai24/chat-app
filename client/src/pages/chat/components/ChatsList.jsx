@@ -176,7 +176,7 @@ const ChatsList = () => {
       <div
         className={cn(
           "overflow-hidden rounded-full bg-[#1f2229]",
-          avatars.includes(user.profilePic) ? "h-14 w-14" : "h-10 w-10"
+          avatars.includes(user.profilePic) ? "h-14 w-14" : "h-10 w-10 ml-1"
         )}
       >
         <img
