@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppStore } from "@/store";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { Loader2 } from "lucide-react";
 
 export default function Auth() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
@@ -23,27 +24,34 @@ export default function Auth() {
     password: "",
     confirmPassword: "",
   });
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isRegisterLoading, setIsRegisterLoading] = useState(false);
 
   const navigate = useNavigate();
   const { setUserInfo } = useAppStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoginLoading(true);
 
     if (!loginData.email) {
       toast.error("Please enter your email");
+      setIsLoginLoading(false);
       return;
     }
     if (!loginData.email.includes("@")) {
       toast.error("Please enter a valid email address");
+      setIsLoginLoading(false);
       return;
     }
     if (!loginData.password) {
       toast.error("Please enter your password");
+      setIsLoginLoading(false);
       return;
     }
     if (loginData.password.length < 6) {
       toast.error("Password must be at least 6 characters long");
+      setIsLoginLoading(false);
       return;
     }
 
@@ -59,34 +67,43 @@ export default function Auth() {
       }
     } catch (error) {
       toast.error(error.response?.data?.msg || "Login failed");
+    } finally {
+      setIsLoginLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setIsRegisterLoading(true);
 
     if (!registerData.email) {
       toast.error("Please enter your email");
+      setIsRegisterLoading(false);
       return;
     }
     if (!registerData.email.includes("@")) {
       toast.error("Please enter a valid email address");
+      setIsRegisterLoading(false);
       return;
     }
     if (!registerData.password) {
       toast.error("Please enter a password");
+      setIsRegisterLoading(false);
       return;
     }
     if (registerData.password.length < 6) {
       toast.error("Password must be at least 6 characters long");
+      setIsRegisterLoading(false);
       return;
     }
     if (!registerData.confirmPassword) {
       toast.error("Please confirm your password");
+      setIsRegisterLoading(false);
       return;
     }
     if (registerData.password !== registerData.confirmPassword) {
       toast.error("Passwords do not match");
+      setIsRegisterLoading(false);
       return;
     }
 
@@ -106,6 +123,8 @@ export default function Auth() {
       }
     } catch (error) {
       toast.error(error.response?.data?.msg || "Registration failed");
+    } finally {
+      setIsRegisterLoading(false);
     }
   };
 
@@ -150,6 +169,7 @@ export default function Auth() {
                     onChange={(e) =>
                       setLoginData({ ...loginData, email: e.target.value })
                     }
+                    disabled={isLoginLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -165,6 +185,7 @@ export default function Auth() {
                     onChange={(e) =>
                       setLoginData({ ...loginData, password: e.target.value })
                     }
+                    disabled={isLoginLoading}
                   />
                 </div>
               </CardContent>
@@ -172,8 +193,16 @@ export default function Auth() {
                 <Button
                   type="submit"
                   className="w-full bg-[#E9EDEF] text-[#1f2229] hover:bg-gray-200"
+                  disabled={isLoginLoading}
                 >
-                  Login
+                  {isLoginLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
               </CardFooter>
             </form>
@@ -206,6 +235,7 @@ export default function Auth() {
                         email: e.target.value,
                       })
                     }
+                    disabled={isRegisterLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -224,6 +254,7 @@ export default function Auth() {
                         password: e.target.value,
                       })
                     }
+                    disabled={isRegisterLoading}
                   />
                 </div>
                 <div className="space-y-2">
@@ -242,6 +273,7 @@ export default function Auth() {
                         confirmPassword: e.target.value,
                       })
                     }
+                    disabled={isRegisterLoading}
                   />
                 </div>
               </CardContent>
@@ -249,8 +281,16 @@ export default function Auth() {
                 <Button
                   type="submit"
                   className="w-full bg-[#E9EDEF] text-[#1f2229] hover:bg-gray-200"
+                  disabled={isRegisterLoading}
                 >
-                  Register
+                  {isRegisterLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Registering...
+                    </>
+                  ) : (
+                    "Register"
+                  )}
                 </Button>
               </CardFooter>
             </form>

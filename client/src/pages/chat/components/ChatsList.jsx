@@ -1,21 +1,26 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useAppStore } from "@/store";
 import axios from "axios";
-import { SearchIcon } from "lucide-react";
-import React, { useEffect, useState, useCallback } from "react";
+import { SearchIcon, LogOut } from "lucide-react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { debounce } from "lodash";
 import { cn } from "@/lib/utils";
+import { useSocket } from "@/context/SocketContext";
 
 const ChatsList = () => {
-  const { userInfo, chatDetails, setChatDetails } = useAppStore();
+  const { userInfo, setUserInfo,chatDetails, setChatDetails } = useAppStore();
   const [chatList, setChatList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const chatListRef = useRef(new Map());
 
-  console.log({ chatDetails });
+  const socket = useSocket();
 
   const fetchChatList = async () => {
     try {
@@ -23,8 +28,12 @@ const ChatsList = () => {
         `${import.meta.env.VITE_BACKEND_URL}/api/contacts/getChatList`,
         { withCredentials: true }
       );
-      console.log(response);
-      setChatList(response.data);
+      const newChatList = response.data;
+      setChatList(newChatList);
+
+      chatListRef.current = new Map(
+        newChatList.map((chat) => [chat._id, chat])
+      );
     } catch (error) {
       console.error("Error fetching chat list:", error);
     }
@@ -32,7 +41,40 @@ const ChatsList = () => {
 
   useEffect(() => {
     fetchChatList();
-  }, [chatDetails, setChatDetails]);
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleChatListUpdate = (updateData) => {
+      setChatList((prevList) => {
+        const existingChatIndex = prevList.findIndex(
+          (chat) => chat._id === updateData._id
+        );
+
+        if (existingChatIndex !== -1) {
+          const newList = [...prevList];
+          newList[existingChatIndex] = {
+            ...newList[existingChatIndex],
+            lastMessage: updateData.lastMessage,
+            timestamp: updateData.timestamp,
+          };
+          const [updatedChat] = newList.splice(existingChatIndex, 1);
+          return [updatedChat, ...newList];
+        } else {
+          return [updateData, ...prevList];
+        }
+      });
+    };
+
+    socket.on("chat_list_update", handleChatListUpdate);
+
+    return () => {
+      if (socket) {
+        socket.off("chat_list_update", handleChatListUpdate);
+      }
+    };
+  }, [socket]);
 
   const performSearch = async (value) => {
     if (value.trim() === "") {
@@ -102,13 +144,26 @@ const ChatsList = () => {
         messages: response.data.messages,
       });
 
-      if (!chatList.find((user) => user._id === item._id)) {
-        fetchChatList();
-      }
       setIsSearching(false);
       setSearchTerm("");
     } catch (error) {
       console.error("Error setting active chat:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      if(response.status === 200) {
+        setUserInfo(null);
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error logging out:", error);
     }
   };
 
@@ -172,19 +227,46 @@ const ChatsList = () => {
   };
 
   return (
-    <div className="w-[30vw] h-screen p-5 border-r border-gray-700">
+    <div className="w-[30vw] h-screen p-5 border-r border-gray-700 flex flex-col">
       <div className="flex items-center justify-start gap-2 bg-light px-3 py-2 rounded-xl text-muted-foreground">
-        {import.meta.env.BACKEND_URL}
         <SearchIcon color="#a0aec0" />
         <Input
           type="text"
           placeholder="Search"
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
-          className="border-none text-[#E9EDEF] outline-none !text-md focus-visible:ring-0"
+          className="border-none text-light_white outline-none !text-md focus-visible:ring-0"
         />
       </div>
-      <div className="mt-5">{renderUsers()}</div>
+      <div className="mt-5 flex-1 overflow-y-auto">{renderUsers()}</div>
+      <Separator className="my-4" />
+      <Card className="bg-light border-none">
+        <CardContent className="p-2">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={userInfo?.profilePic} alt="Profile picture" />
+              <AvatarFallback>
+                {userInfo?.firstName?.[0]}
+                {userInfo?.lastName?.[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h3 className="text-base font-semibold text-light_white">
+                {userInfo?.firstName} {userInfo?.lastName}
+              </h3>
+              <p className="text-sm text-muted-foreground">{userInfo?.email}</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleLogout}
+              className="hover:bg-[#1f2229]"
+            >
+              <LogOut className="h-5 w-5 text-light_white" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

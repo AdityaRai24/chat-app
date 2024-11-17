@@ -28,22 +28,51 @@ const ActiveChat = ({ chatDetails }) => {
       }
       return [...prev, msg];
     });
-    setTimeout(scrollToBottom, 100); 
+    setTimeout(scrollToBottom, 100);
   };
 
   const handleUsercurrentStatus = (status) => {
     setUserCurrentStatus(status);
   };
 
+  // Listen for user status changes
   useEffect(() => {
+    const handleStatusChange = ({ userId, status }) => {
+      if (userId === chatDetails.receiver._id) {
+        setUserCurrentStatus(status);
+      }
+    };
+
+    socket.on("user_status_change", handleStatusChange);
+
+    // Initial status check
     socket.emit("getUserStatus", { userId: chatDetails.receiver._id });
     socket.on("user_current_status", handleUsercurrentStatus);
 
+    // Handle page visibility changes
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === "visible";
+      if (isVisible) {
+        socket.connect();
+      }
+    };
+
+    // Handle beforeunload event
+    const handleBeforeUnload = () => {
+      socket.emit("beforeunload");
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
+      socket.off("user_status_change", handleStatusChange);
       socket.off("getUserStatus");
       socket.off("user_current_status", handleUsercurrentStatus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [userCurrentStatus, socket, chatDetails.receiver._id]);
+  }, [socket, chatDetails.receiver._id]);
 
   useEffect(() => {
     socket.on("receive_message", handleReceiveMessage);

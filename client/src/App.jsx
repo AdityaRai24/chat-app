@@ -5,6 +5,7 @@ import Profile from "./pages/profile/page";
 import { useAppStore } from "./store";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Loader2Icon, LoaderIcon } from "lucide-react";
 
 const PrivateRoute = ({ children }) => {
   const { userInfo } = useAppStore();
@@ -49,7 +50,14 @@ function App() {
   }, [userInfo, setUserInfo]);
 
   if (loading) {
-    return <div>loading...</div>;
+    return (
+      <div className="flex items-center justify-center  h-screen w-full text-white text-3xl font-bold capitalize bg-[#1f2229]">
+        <div className="flex items-center justify-center gap-2">
+          <h1>Loading</h1>
+          <Loader2Icon className="animate-spin" />
+        </div>
+      </div>
+    );
   }
 
   return (

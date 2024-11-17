@@ -108,9 +108,7 @@ export const updateProfile = async (req, res) => {
     const { firstName, lastName, profilePic } = req.body;
 
     if (!firstName || !lastName || !profilePic) {
-      return res
-        .status(500)
-        .json({ msg: "All the fields are required" });
+      return res.status(500).json({ msg: "All the fields are required" });
     }
 
     const userData = await User.findByIdAndUpdate(
@@ -134,5 +132,14 @@ export const updateProfile = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ msg: error.message });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 1, secure: true ,sameSite: "None"});
+    res.status(200).send("Logout successfull");
+  } catch (error) {
+    res.status(500).send("Error logging out");
   }
 };
