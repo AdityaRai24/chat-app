@@ -1,13 +1,18 @@
 import { useAppStore } from "@/store";
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Camera } from "lucide-react";
+import { Camera, User } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Profile = () => {
   const { userInfo, setUserInfo } = useAppStore();
@@ -17,7 +22,17 @@ const Profile = () => {
     email: userInfo?.email || "",
     profilePic: userInfo?.profilePic || "",
   });
+  const [showAvatars, setShowAvatars] = useState(false);
   const navigate = useNavigate();
+
+  const avatars = [
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar1_v0iyel.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar6_wwrn6w.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar4_antyye.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar5_srwogx.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar3_gilhl7.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar2_qqfac4.png",
+  ];
 
   useEffect(() => {
     if (userInfo.profileSetup) {
@@ -42,8 +57,8 @@ const Profile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    const loadingToast = toast.loading("Uploading image...");
     try {
-      console.log("Entered");
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", "chat-app");
@@ -57,15 +72,32 @@ const Profile = () => {
       );
 
       const data = await response.json();
-      console.log(data);
       setFormData((prev) => ({
         ...prev,
         profilePic: data.secure_url,
       }));
+      toast.dismiss(loadingToast);
+      toast.success("Image uploaded successfully");
+      setShowAvatars(false);
     } catch (error) {
       console.error("Error uploading image:", error);
+      toast.dismiss(loadingToast);
       toast.error("Failed to upload image");
     }
+  };
+
+  const handleAvatarSelect = (avatarUrl, e) => {
+    e.preventDefault(); // Prevent form submission
+    setFormData((prev) => ({
+      ...prev,
+      profilePic: avatarUrl,
+    }));
+    setShowAvatars(false);
+  };
+
+  const toggleAvatars = (e) => {
+    e.preventDefault(); // Prevent form submission
+    setShowAvatars(!showAvatars);
   };
 
   const handleSubmit = async (e) => {
@@ -93,92 +125,156 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile");
+      toast.error(error.response.data.msg);
     }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-8">
-      <CardHeader>
-        <CardTitle>Complete Your Profile</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
-                {formData.profilePic ? (
-                  <img
-                    src={formData.profilePic}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Camera className="w-12 h-12 text-gray-400" />
+    <div className="flex min-h-screen items-center justify-center bg-[#1f2229] p-4">
+      <div className="w-full max-w-md">
+        <div className="rounded-lg bg-[#2d323c] p-6">
+          <h2 className="mb-2 text-xl text-[#E9EDEF]">Complete Your Profile</h2>
+          <p className="mb-6 text-sm text-gray-400">
+            Set up your account details
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="relative">
+                <div className="h-24 w-24 overflow-hidden rounded-full bg-[#1f2229]">
+                  {formData.profilePic ? (
+                    <img
+                      src={formData.profilePic}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Camera className="h-8 w-8 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+                <div className="absolute -bottom-3 left-1/2 flex -translate-x-1/2 transform space-x-2">
+                  <div className="flex items-center justify-center rounded-full bg-[#E9EDEF] p-2 cursor-pointer hover:bg-gray-200 transition-all duration-300">
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <label
+                            htmlFor="profile-pic"
+                            className="cursor-pointer"
+                          >
+                            <Camera className="h-4 w-4 text-[#2d323c]" />
+                          </label>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Upload a custom image</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    <input
+                      type="file"
+                      id="profile-pic"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      onClick={(e) => e.stopPropagation()} // Prevent event bubbling
+                    />
                   </div>
-                )}
+                  <button
+                    type="button" // Explicitly set button type
+                    onClick={toggleAvatars}
+                    className="flex items-center justify-center rounded-full bg-[#E9EDEF] p-2 hover:bg-gray-200 transition-all duration-300"
+                  >
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <User className="h-4 w-4 text-[#2d323c]" />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Choose an avatar</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </button>
+                </div>
               </div>
-              <label
-                htmlFor="profile-pic"
-                className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer hover:bg-primary/90"
-              >
-                <Camera className="w-4 h-4" />
-                <input
-                  type="file"
-                  id="profile-pic"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-              </label>
             </div>
-          </div>
 
-          {/* First Name */}
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleInputChange}
-              placeholder="Enter your first name"
-              required
-            />
-          </div>
+            {showAvatars && (
+              <div className="grid grid-cols-3 gap-4 mt-8">
+                {avatars.map((avatar, index) => (
+                  <button
+                    key={index}
+                    type="button" // Explicitly set button type
+                    onClick={(e) => handleAvatarSelect(avatar, e)}
+                    className={`relative rounded-full aspect-square transition-all duration-300
+                    ${
+                      formData.profilePic === avatar
+                        ? "ring-2 ring-[#E9EDEF] ring-offset-2 ring-offset-[#2d323c]"
+                        : "hover:ring-2 hover:ring-[#E9EDEF] hover:ring-offset-2 hover:ring-offset-[#2d323c]"
+                    }`}
+                  >
+                    <img
+                      src={avatar}
+                      alt={`Avatar ${index + 1}`}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
-          {/* Last Name */}
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleInputChange}
-              placeholder="Enter your last name"
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label className="text-[#E9EDEF]" htmlFor="firstName">
+                First Name
+              </Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                placeholder="Enter your first name"
+                className="rounded bg-[#1f2229] text-[#E9EDEF] outline-none border-gray-600 placeholder:text-gray-400"
+              />
+            </div>
 
-          {/* Email (readonly) */}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              value={formData.email}
-              readOnly
-              className="bg-gray-50"
-            />
-          </div>
+            <div className="space-y-2">
+              <Label className="text-[#E9EDEF]" htmlFor="lastName">
+                Last Name
+              </Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                placeholder="Enter your last name"
+                className="rounded bg-[#1f2229] text-[#E9EDEF] outline-none border-gray-600 placeholder:text-gray-400"
+              />
+            </div>
 
-          <Button type="submit" className="w-full">
-            Save Changes
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <div className="space-y-2">
+              <Label className="text-[#E9EDEF]" htmlFor="email">
+                Email
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                value={formData.email}
+                readOnly
+                className="rounded bg-[#1f2229] text-[#E9EDEF] border-gray-600 outline-none"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="w-full rounded bg-[#E9EDEF] p-3 text-[#2d323c] hover:bg-gray-200"
+            >
+              Save Changes
+            </Button>
+          </form>
+        </div>
+      </div>
+    </div>
   );
 };
 

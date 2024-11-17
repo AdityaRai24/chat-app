@@ -3,7 +3,7 @@ import myImage from "./messages.png";
 
 const EmptyChat = () => {
   return (
-    <div className="flex flex-col items-center w-full justify-start h-full p-8">
+    <div className="flex flex-col items-center w-[70vw] justify-start h-full p-8">
       <div className="text-center max-w-lg">
         <div className="">
           <img

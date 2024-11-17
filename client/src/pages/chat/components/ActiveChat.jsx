@@ -11,11 +11,15 @@ const ActiveChat = ({ chatDetails }) => {
   const [userCurrentStatus, setUserCurrentStatus] = useState("Offline");
   const socket = useSocket();
   const [isTyping, setIsTyping] = useState(false);
-  const typingTimeoutRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     setChatHistory(chatDetails.messages);
   }, [chatDetails]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleReceiveMessage = (msg) => {
     setChatHistory((prev) => {
@@ -24,6 +28,7 @@ const ActiveChat = ({ chatDetails }) => {
       }
       return [...prev, msg];
     });
+    setTimeout(scrollToBottom, 100); 
   };
 
   const handleUsercurrentStatus = (status) => {
@@ -54,6 +59,11 @@ const ActiveChat = ({ chatDetails }) => {
     };
   }, [socket, chatDetails.receiver._id]);
 
+  // Scroll to bottom on initial load and when chat history changes
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatDetails.messages]);
+
   return (
     <div className="w-[70vw] flex flex-col items-start justify-between h-screen">
       <div className="px-5 py-3 border-b border-gray-700 w-full flex items-center justify-start gap-3">
@@ -76,7 +86,12 @@ const ActiveChat = ({ chatDetails }) => {
 
       <CustomScroll flex="1" className="w-full mt-6 flex flex-col">
         {chatHistory && chatHistory.length > 0 ? (
-          chatHistory.map((item) => <Message key={item._id} message={item} />)
+          <>
+            {chatHistory.map((item) => (
+              <Message key={item._id} message={item} />
+            ))}
+            <div ref={messagesEndRef} />{" "}
+          </>
         ) : (
           <div className="text-muted-foreground flex items-center justify-center h-[70vh]">
             No messages yet...

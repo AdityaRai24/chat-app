@@ -5,6 +5,7 @@ import axios from "axios";
 import { SearchIcon } from "lucide-react";
 import React, { useEffect, useState, useCallback } from "react";
 import { debounce } from "lodash";
+import { cn } from "@/lib/utils";
 
 const ChatsList = () => {
   const { userInfo, chatDetails, setChatDetails } = useAppStore();
@@ -14,7 +15,7 @@ const ChatsList = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
 
-  console.log({chatDetails})
+  console.log({ chatDetails });
 
   const fetchChatList = async () => {
     try {
@@ -31,7 +32,7 @@ const ChatsList = () => {
 
   useEffect(() => {
     fetchChatList();
-  }, [chatDetails,setChatDetails]);
+  }, [chatDetails, setChatDetails]);
 
   const performSearch = async (value) => {
     if (value.trim() === "") {
@@ -66,6 +67,15 @@ const ChatsList = () => {
     []
   );
 
+  const avatars = [
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar1_v0iyel.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar6_wwrn6w.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar4_antyye.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar5_srwogx.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar3_gilhl7.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar2_qqfac4.png",
+  ];
+
   useEffect(() => {
     return () => {
       debouncedSearch.cancel();
@@ -92,12 +102,11 @@ const ChatsList = () => {
         messages: response.data.messages,
       });
 
-
       if (!chatList.find((user) => user._id === item._id)) {
         fetchChatList();
       }
-      setIsSearching(false)
-      setSearchTerm('')
+      setIsSearching(false);
+      setSearchTerm("");
     } catch (error) {
       console.error("Error setting active chat:", error);
     }
@@ -109,10 +118,18 @@ const ChatsList = () => {
       onClick={() => setActiveChat(user)}
       className="flex items-center justify-start gap-3 p-4 cursor-pointer hover:bg-light rounded-2xl"
     >
-      <Avatar className="object-cover bg-center">
-        <AvatarImage src={user.profilePic} alt={user.firstName} />
-        <AvatarFallback>{user.firstName[0]}</AvatarFallback>
-      </Avatar>
+      <div
+        className={cn(
+          "overflow-hidden rounded-full bg-[#1f2229]",
+          avatars.includes(user.profilePic) ? "h-14 w-14" : "h-10 w-10"
+        )}
+      >
+        <img
+          src={user.profilePic}
+          alt="Profile"
+          className="h-full w-full object-cover"
+        />
+      </div>
       <div className="flex flex-col">
         <span className="text-md text-white">
           {user.firstName} {user.lastName}
