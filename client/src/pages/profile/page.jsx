@@ -105,7 +105,7 @@ const Profile = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/auth/updateProfile",
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/updateProfile`,
         {
           firstName: formData.firstName,
           lastName: formData.lastName,

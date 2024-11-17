@@ -26,7 +26,7 @@ function App() {
     const getUserData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/auth/getUserInfo`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/auth/getUserInfo`,
           { withCredentials: true }
         );
         if (response.status === 200 && response.data.id) {

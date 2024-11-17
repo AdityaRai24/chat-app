@@ -20,7 +20,7 @@ const ChatsList = () => {
   const fetchChatList = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/contacts/getChatList`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/contacts/getChatList`,
         { withCredentials: true }
       );
       console.log(response);
@@ -45,7 +45,7 @@ const ChatsList = () => {
     try {
       setIsSearching(true);
       const response = await axios.post(
-        `http://localhost:8000/api/contacts/getSearchContacts`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/contacts/getSearchContacts`,
         { searchTerm: value },
         { withCredentials: true }
       );
@@ -91,7 +91,7 @@ const ChatsList = () => {
   const setActiveChat = async (item) => {
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/messages/getUsersChat`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/messages/getUsersChat`,
         { id: item._id },
         { withCredentials: true }
       );
@@ -174,6 +174,7 @@ const ChatsList = () => {
   return (
     <div className="w-[30vw] h-screen p-5 border-r border-gray-700">
       <div className="flex items-center justify-start gap-2 bg-light px-3 py-2 rounded-xl text-muted-foreground">
+        {import.meta.env.BACKEND_URL}
         <SearchIcon color="#a0aec0" />
         <Input
           type="text"

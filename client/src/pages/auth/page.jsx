@@ -49,7 +49,7 @@ export default function Auth() {
 
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/auth/login`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`,
         { email: loginData.email, password: loginData.password },
         { withCredentials: true }
       );
@@ -92,7 +92,7 @@ export default function Auth() {
 
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/auth/register`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`,
         { email: registerData.email, password: registerData.password },
         { withCredentials: true }
       );
