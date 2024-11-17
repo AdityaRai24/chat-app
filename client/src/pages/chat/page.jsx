@@ -5,10 +5,22 @@ import { useNavigate } from "react-router-dom";
 import ChatsList from "./components/ChatsList";
 import ActiveChat from "./components/ActiveChat";
 import EmptyChat from "./components/EmptyChat";
+import { useSocket } from "@/context/SocketContext";
 
 const Chat = () => {
-  const { userInfo, chatDetails } = useAppStore();
+  const { userInfo, chatDetails,setChatDetails } = useAppStore();
   const navigate = useNavigate();
+  const socket = useSocket()
+
+  useEffect(()=>{
+    setChatDetails(null)
+    console.log({socket,chatDetails})
+
+    socket?.on("receive_message",()=>{
+      console.log("asfd")
+    })
+
+  },[socket])
 
   useEffect(() => {
     if (!userInfo.profileSetup) {

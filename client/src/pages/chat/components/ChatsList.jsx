@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { useSocket } from "@/context/SocketContext";
 
 const ChatsList = () => {
-  const { userInfo, setUserInfo,chatDetails, setChatDetails } = useAppStore();
+  const { userInfo, setUserInfo, setChatDetails } = useAppStore();
   const [chatList, setChatList] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -47,6 +47,7 @@ const ChatsList = () => {
     if (!socket) return;
 
     const handleChatListUpdate = (updateData) => {
+      console.log({updateData},"entered chat list update");
       setChatList((prevList) => {
         const existingChatIndex = prevList.findIndex(
           (chat) => chat._id === updateData._id
@@ -74,7 +75,7 @@ const ChatsList = () => {
         socket.off("chat_list_update", handleChatListUpdate);
       }
     };
-  }, [socket]);
+  }, [socket, chatList]);
 
   const performSearch = async (value) => {
     if (value.trim() === "") {

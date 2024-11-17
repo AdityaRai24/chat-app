@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import myImage from "./messages.png";
+import { useSocket } from "@/context/SocketContext";
+import { useAppStore } from "@/store";
 
 const EmptyChat = () => {
   return (

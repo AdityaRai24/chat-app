@@ -26,12 +26,12 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const avatars = [
-    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar1_v0iyel.png",
-    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar6_wwrn6w.png",
-    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar4_antyye.png",
-    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar5_srwogx.png",
-    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar3_gilhl7.png",
-    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731848588/avatar2_qqfac4.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar1_dn7qte.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar6_ixk7gl.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar4_uecmq1.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar5_nh1jzv.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar3_yj5pce.png",
+    "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar2_ab14xk.png",
   ];
 
   useEffect(() => {
@@ -141,6 +141,7 @@ const Profile = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
+                {console.log(formData.profilePic)}
                 <div className="h-24 w-24 overflow-hidden rounded-full bg-[#1f2229]">
                   {formData.profilePic ? (
                     <img
@@ -214,6 +215,7 @@ const Profile = () => {
                         : "hover:ring-2 hover:ring-[#E9EDEF] hover:ring-offset-2 hover:ring-offset-[#2d323c]"
                     }`}
                   >
+                  {console.log(avatar)}
                     <img
                       src={avatar}
                       alt={`Avatar ${index + 1}`}
