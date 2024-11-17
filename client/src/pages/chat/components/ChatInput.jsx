@@ -36,8 +36,6 @@ const ChatInput = ({ chatDetails }) => {
   const { userInfo } = useAppStore();
   const socket = useSocket();
 
-  console.log(activeUploadedImages);
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -82,6 +80,7 @@ const ChatInput = ({ chatDetails }) => {
         }
       );
       const data = await response.json();
+      console.log({ data });
       return data;
     } catch (error) {
       toast.error("Error while uploading images...");
@@ -141,11 +140,18 @@ const ChatInput = ({ chatDetails }) => {
     socket.emit("send_message", {
       sender: userInfo.id,
       receiver: chatDetails.receiver._id,
-      message: w,
+      message: activeUploadedImages,
       type: "image",
     });
     setIsActiveUploadedImages(false);
     setActiveUploadedImages([]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSendMessage();
+    }
+    socket.emit("typing", userInfo.id);
   };
 
   return (
@@ -260,11 +266,7 @@ const ChatInput = ({ chatDetails }) => {
           onChange={(e) => setMessage(e.target.value)}
           className="w-full flex-1 bg-light py-5 text-white border-none outline-none focus-visible:ring-0"
           placeholder={isUploading ? "Uploading..." : "Enter your message"}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSendMessage();
-            }
-          }}
+          onKeyDown={(e) => handleKeyDown(e)}
           disabled={isUploading}
         />
         <SendIcon

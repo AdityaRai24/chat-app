@@ -31,6 +31,19 @@ const setupSocket = (server) => {
       console.log("user id not provided during connection.");
     }
 
+    socket.on("typing",(userId)=>{
+      socket.emit("user_current_status", "Typing");
+    })
+
+    socket.on("getUserStatus", ({ userId }) => {
+      const userSocketId = userSocketMap.get(userId);
+      if (userSocketId) {
+        socket.emit("user_current_status", "Online");
+      }else{
+        socket.emit("user_current_status", "Offline");
+      }
+    });
+
     socket.on("send_message", async ({ sender, receiver, message, type }) => {
       if (type === "text") {
         try {

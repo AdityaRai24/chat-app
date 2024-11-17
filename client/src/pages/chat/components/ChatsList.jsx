@@ -9,8 +9,6 @@ const ChatsList = () => {
   const { userInfo, chatDetails, setChatDetails } = useAppStore();
   const [allUsers, setAllUsers] = useState([]);
 
-  console.log({ chatDetails });
-
   useEffect(() => {
     const getAllUsers = async () => {
       try {

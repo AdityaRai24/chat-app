@@ -8,12 +8,12 @@ import ChatInput from "./ChatInput";
 
 const ActiveChat = ({ chatDetails }) => {
   const [chatHistory, setChatHistory] = useState(chatDetails.messages);
+  const [userCurrentStatus, setUserCurrentStatus] = useState("Offline");
   const socket = useSocket();
 
   useEffect(() => {
     setChatHistory(chatDetails.messages);
   }, [chatDetails]);
-
 
   const handleReceiveMessage = (msg) => {
     setChatHistory((prev) => {
@@ -24,6 +24,20 @@ const ActiveChat = ({ chatDetails }) => {
     });
   };
 
+  const handleUsercurrentStatus = (status) => {
+    setUserCurrentStatus(status);
+  };
+
+  useEffect(() => {
+    socket.emit("getUserStatus", { userId: chatDetails.receiver._id });
+    socket.on("user_current_status", handleUsercurrentStatus);
+
+    return () => {
+      socket.off("getUserStatus", { userId: chatDetails.receiver._id });
+      socket.off("user_current_status", handleUsercurrentStatus);
+    };
+  }, [userCurrentStatus, socket, chatDetails.receiver._id]);
+
   useEffect(() => {
     socket.on("receive_message", handleReceiveMessage);
 
@@ -31,8 +45,6 @@ const ActiveChat = ({ chatDetails }) => {
       socket.off("receive_message", handleReceiveMessage);
     };
   }, [socket]);
-
-
 
   return (
     <div className="w-[70vw] flex flex-col items-start justify-between h-screen">
@@ -48,7 +60,7 @@ const ActiveChat = ({ chatDetails }) => {
           <h1 className="text-xl font-semibold text-white">
             {chatDetails.receiver.firstName} {chatDetails.receiver.lastName}
           </h1>
-          <span className="text-sm text-gray-400">Online</span>
+          <span className="text-sm text-gray-400">{userCurrentStatus}</span>
         </div>
       </div>
 
@@ -62,7 +74,7 @@ const ActiveChat = ({ chatDetails }) => {
         )}
       </CustomScroll>
 
-      <ChatInput chatDetails={chatDetails}/>
+      <ChatInput chatDetails={chatDetails} />
     </div>
   );
 };

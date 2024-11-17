@@ -8,8 +8,6 @@ export const getUsersChat = async (req, res) => {
       return res.status(400).send("Both user id's are required...");
     }
 
-    console.log({ senderId, receiverId });
-
     const messages = await Message.find({
       $or: [
         { sender: senderId, receiver: receiverId },
