@@ -18,6 +18,11 @@ export const register = async (req, res) => {
       return res.status(500).json({ msg: "Email and password is required" });
     }
 
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(500).json({ msg: "User already exists" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({ email, password: hashedPassword });
@@ -55,7 +60,7 @@ export const login = async (req, res) => {
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(500).json({ msg: "Invalid credentials" });
+      return res.status(500).json({ msg: "Invalid password." });
     }
     res.cookie("jwt", createToken(email, user._id), {
       secure: true,
@@ -97,8 +102,6 @@ export const getUserInfo = async (req, res) => {
   }
 };
 
-
-
 export const updateProfile = async (req, res) => {
   try {
     const { userId } = req;
@@ -107,7 +110,7 @@ export const updateProfile = async (req, res) => {
     if (!firstName || !lastName || !profilePic) {
       return res
         .status(500)
-        .json({ msg: "First name last name and profile pic is required" });
+        .json({ msg: "All the fields are required" });
     }
 
     const userData = await User.findByIdAndUpdate(
