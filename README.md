@@ -32,5 +32,3 @@ This is a real-time chat application built using the MERN (MongoDB, Express, Rea
 - **Real-Time Communication**: Socket.IO  
 
 ---
-
-Feel free to customize and enhance the application to suit your needs! 😊
