@@ -52,13 +52,11 @@ npm install
 
 
 4. Create a .env file in the backend directory with the following variables:
-PORT=yourbackendport
 
-JWT_KEY=yourjwtsecretkey
-
-ORIGIN=yourfrontendurl (eg : http://localhost:5173)
-
-DATABASE_URL=yourmongodburl
+      PORT=yourbackendport<br />
+      JWT_KEY=yourjwtsecretkey<br />
+      ORIGIN=yourfrontendurl (eg : http://localhost:5173)<br />
+      DATABASE_URL=yourmongodburl<br />
 
 6. Create a .env file in the backend directory with the following variables:
 VITE_BACKEND_URL=your backend url (eg : http://localhost:8000)
