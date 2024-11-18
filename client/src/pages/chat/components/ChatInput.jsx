@@ -81,7 +81,6 @@ const ChatInput = ({ chatDetails }) => {
         }
       );
       const data = await response.json();
-      console.log({ data });
       return data;
     } catch (error) {
       toast.error("Error while uploading images...");
@@ -100,7 +99,6 @@ const ChatInput = ({ chatDetails }) => {
       toast.error("You can only upload 3 files at a time");
     }
     setIsUploading(true);
-    console.log("Starting upload process...");
     try {
       for (const file of files) {
         if (file.size > 10 * 1024 * 1024) {
@@ -123,7 +121,6 @@ const ChatInput = ({ chatDetails }) => {
   };
 
   const handleMediaClick = () => {
-    console.log("Media button clicked");
     mediaInputRef.current?.click();
   };
 
@@ -238,7 +235,6 @@ const ChatInput = ({ chatDetails }) => {
           multiple
           accept="image/*,video/*"
           onChange={(e) => {
-            console.log("Media input change event");
             handleFileUpload(e, "media");
           }}
           disabled={isUploading}
@@ -248,7 +244,6 @@ const ChatInput = ({ chatDetails }) => {
           ref={fileInputRef}
           className="hidden"
           onChange={(e) => {
-            console.log("File input change event");
             handleFileUpload(e, "file");
           }}
           disabled={isUploading}

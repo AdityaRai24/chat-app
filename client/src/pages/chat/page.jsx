@@ -14,10 +14,8 @@ const Chat = () => {
 
   useEffect(()=>{
     setChatDetails(null)
-    console.log({socket,chatDetails})
 
     socket?.on("receive_message",()=>{
-      console.log("asfd")
     })
 
   },[socket])

@@ -141,7 +141,6 @@ const Profile = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col items-center space-y-4">
               <div className="relative">
-                {console.log(formData.profilePic)}
                 <div className="h-24 w-24 overflow-hidden rounded-full bg-[#1f2229]">
                   {formData.profilePic ? (
                     <img
@@ -215,7 +214,6 @@ const Profile = () => {
                         : "hover:ring-2 hover:ring-[#E9EDEF] hover:ring-offset-2 hover:ring-offset-[#2d323c]"
                     }`}
                   >
-                  {console.log(avatar)}
                     <img
                       src={avatar}
                       alt={`Avatar ${index + 1}`}

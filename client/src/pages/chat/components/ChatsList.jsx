@@ -47,7 +47,6 @@ const ChatsList = () => {
     if (!socket) return;
 
     const handleChatListUpdate = (updateData) => {
-      console.log({updateData},"entered chat list update");
       setChatList((prevList) => {
         const existingChatIndex = prevList.findIndex(
           (chat) => chat._id === updateData._id
@@ -159,7 +158,7 @@ const ChatsList = () => {
         {},
         { withCredentials: true }
       );
-      if(response.status === 200) {
+      if (response.status === 200) {
         setUserInfo(null);
         navigate("/");
       }
@@ -190,8 +189,10 @@ const ChatsList = () => {
         <span className="text-md text-white">
           {user.firstName} {user.lastName}
         </span>
-        <span className="text-sm text-muted-foreground">
-          {user.lastMessage ?? "No message"}
+        <span className="text-sm text-muted-foreground truncate max-w-full">
+          {user.lastMessage && user.lastMessage.length > 35
+            ? `${user.lastMessage.slice(0, 35)}...`
+            : user.lastMessage ?? "No message"}
         </span>
       </div>
     </div>
