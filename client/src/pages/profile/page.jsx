@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Camera, User } from "lucide-react";
+import { Camera, Loader2, User } from "lucide-react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,7 @@ const Profile = () => {
   });
   const [showAvatars, setShowAvatars] = useState(false);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   const avatars = [
     "https://res.cloudinary.com/dhanvyweu/image/upload/v1731868427/avatar1_dn7qte.png",
@@ -102,6 +103,7 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const response = await axios.post(
@@ -126,6 +128,8 @@ const Profile = () => {
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error(error.response.data.msg);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -267,9 +271,17 @@ const Profile = () => {
 
             <Button
               type="submit"
-              className="w-full rounded bg-[#E9EDEF] p-3 text-[#2d323c] hover:bg-gray-200"
+              disabled={isLoading}
+              className="w-full rounded bg-[#E9EDEF] p-3 text-[#2d323c] hover:bg-gray-200 flex items-center justify-center"
             >
-              Save Changes
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </form>
         </div>

@@ -203,8 +203,17 @@ const ChatsList = () => {
       return chatList.length > 0 ? (
         chatList.map((user) => <UserItem key={user._id} user={user} />)
       ) : (
-        <div className="flex items-center justify-center p-4 text-muted-foreground">
-          Search for users to start a conversation
+        <div className="flex flex-col items-start justify-center p-4 text-muted-foreground">
+         <p> Search for users to start a conversation</p>
+
+         <ul className="mt-4">
+          Demo Users : 
+          <li>
+            <p>Arthur Morgan</p>
+            <p>John Marston</p>
+            <p>Abigail Marston</p>
+          </li>
+         </ul>
         </div>
       );
     }
